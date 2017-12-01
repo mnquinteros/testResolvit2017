@@ -39,9 +39,9 @@ class WordFrequencyAnalyzer():
 		for word, tag in tokens:
 			tlTag = self.translateTag(tag)
 			if tlTag is None:
-				result.append(self.lemmatizer.lemmatize(word))
+				result.append(self.lemmatizer.lemmatize(word.lower()))
 			else:
-				result.append(self.lemmatizer.lemmatize(word, pos=tlTag))
+				result.append(self.lemmatizer.lemmatize(word.lower(), pos=tlTag))
 		return result
 
 	def buildWordDict(self, sentenceTable):
@@ -78,10 +78,3 @@ class WordFrequencyAnalyzer():
 		return json.dumps({ "results" : fin }, sort_keys=True, indent=4 )
 
 
-###########################
-
-if __name__ == '__main__':
-	text = "Take this paragraph of text and return an alphabetized list of ALL unique words.  A unique word is any form of a word often communicated with essentially the same meaning. For example, fish and fishes could be defined as a unique word by using their stem fish. For each unique word found in this entire paragraph, determine the how many times the word appears in total. Also, provide an analysis of what sentence index position or positions the word is found. The following words should not be included in your analysis or result set: \"a\", \"the\", \"and\", \"of\", \"in\", \"be\", \"also\" and \"as\".  Your final result MUST be displayed in a readable console output in the same format as the JSON sample object shown below."
-	wordAnalyzer = WordFrequencyAnalyzer()
-	result = wordAnalyzer.analyzeTextAndGetStats(text)
-	print(result)
