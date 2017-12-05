@@ -1,5 +1,6 @@
 #!usr/bin/python
 from sets import Set
+from collections import OrderedDict
 import json
 import nltk
 from nltk import pos_tag
@@ -29,19 +30,27 @@ class WordFrequencyAnalyzer():
 		else:
 			return None
 
-	def removeStopwordsAndPunct(self, tokens ):
-		cleanTokens = [''.join( ch for ch in word if ch not in ".,\":" ) for word in tokens]
-		return [ token for token in cleanTokens if token.lower() not in self.stopwords ]
+	def removePunct(self, tokens):
+		return [''.join( ch for ch in word if ch not in ".,\":?" ) for word in tokens]
+
+
+	def removeStopwords(self, tokens ):
+		return [ token.encode("ascii", "ignore") for token in tokens if token.lower() not in self.stopwords ]
 		
 
 	def lemmatizeText(self, tokens ):
 		result = []
 		for word, tag in tokens:
 			tlTag = self.translateTag(tag)
+			lemmaWord = ""
 			if tlTag is None:
-				result.append(self.lemmatizer.lemmatize(word.lower()))
+				lemmaWord = self.lemmatizer.lemmatize(word.lower())
 			else:
-				result.append(self.lemmatizer.lemmatize(word.lower(), pos=tlTag))
+				lemmaWord = self.lemmatizer.lemmatize(word.lower(), pos=tlTag)
+			if word.isupper():
+				lemmaWord = lemmaWord.upper()
+			result.append(lemmaWord)
+
 		return result
 
 	def buildWordDict(self, sentenceTable):
@@ -58,23 +67,32 @@ class WordFrequencyAnalyzer():
 
 		return result
 
+	def formatIdx(self, idxSet):
+		output = ""
+		for i in idxSet:
+			output = output + "[" + str(i) +"],"
+		return output.rstrip(',')
 
 	def analyzeTextAndGetStats(self, text ):
-		
 		sentenceTable =[]
 		index = 0
 
 		for sentence in sent_tokenize( text ):
-			tagged_sent = pos_tag( sentence.split() )
+			tagged_sent = pos_tag( self.removePunct(sentence.split()) )
 			tokens =  self.lemmatizeText( tagged_sent )
-			finalTokens = self.removeStopwordsAndPunct(tokens)
+			finalTokens = self.removeStopwords(tokens)
 			sentenceTable = sentenceTable + [ (index, word) for word in finalTokens ]
 			index = index + 1
 
 		wordDict = self.buildWordDict(sentenceTable)
-
+		ordered = OrderedDict(sorted(wordDict.items(), key=lambda t: t[0].lower()))
 		# e[0] is word, e[1] is tuple (count, setOfSentenceIndexes )
-		fin = map(lambda e: { "word" : e[0], "total-ocurrences" : e[1][0], "sentence-indexes" : list(e[1][1]) } , wordDict.iteritems() )
-		return json.dumps({ "results" : fin }, sort_keys=True, indent=4 )
+		fin = map(lambda e: OrderedDict(
+							sorted({ 'word': e[0],
+									 'sentence-indexes': self.formatIdx(e[1][1]),
+									 'total-ocurrences': e[1][0] }.iteritems(),
+									  key=lambda t:t[0], reverse=True)),
+									  ordered.iteritems() )
+		return json.dumps({ "results" : fin }, indent=4 )
 
 
