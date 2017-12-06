@@ -90,7 +90,7 @@ class WordFrequencyAnalyzer():
 		fin = map(lambda e: OrderedDict(
 							sorted({ 'word': e[0],
 									 'sentence-indexes': self.formatIdx(e[1][1]),
-									 'total-ocurrences': e[1][0] }.iteritems(),
+									 'total-occurances': e[1][0] }.iteritems(),
 									  key=lambda t:t[0], reverse=True)),
 									  ordered.iteritems() )
 		return json.dumps({ "results" : fin }, indent=4 )

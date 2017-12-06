@@ -36,22 +36,22 @@ class Test(unittest.TestCase):
 		resultList = [
 		{
 			"word": "best",
-			"total-ocurrences": 1,
+			"total-occurances": 1,
 			"sentence-indexes": "[1]"
 		},
 		{
 			"word": "dog", #From Dogs and dog
-			"total-ocurrences": 2,
+			"total-occurances": 2,
 			"sentence-indexes": "[0],[1]" 	
 		},
 		{
 			"word": "my",
-			"total-ocurrences": 1,
+			"total-occurances": 1,
 			"sentence-indexes": "[1]"			
 		},
 		{	
 			"word": "wonderful",
-			"total-ocurrences": 1, 
+			"total-occurances": 1, 
 			"sentence-indexes": "[0]"
 		}]
 		ordList = [OrderedDict(sorted(d.items(), key=lambda t: t[0], reverse=True)) for d in resultList]
